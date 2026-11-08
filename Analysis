@@ -1,0 +1,81 @@
+
+CREATE TABLE Employees (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100),
+    department VARCHAR(50),
+    salary DECIMAL(10,2),
+    hire_date DATE
+);
+
+INSERT INTO Employees VALUES
+(1, 'John', 'IT', 55000, '2022-01-15'),
+(2, 'David', 'HR', 45000, '2021-06-20'),
+(3, 'Sarah', 'IT', 65000, '2020-03-10'),
+(4, 'Emma', 'Finance', 50000, '2023-02-01'),
+(5, 'James', 'HR', 48000, '2022-08-12'),
+(6, 'Robert', 'IT', 70000, '2019-11-25'),
+(7, 'Sophia', 'Finance', 60000, '2021-09-18'),
+(8, 'Daniel', 'Sales', 42000, '2023-05-14'),
+(9, 'Olivia', 'Sales', 52000, '2020-07-22'),
+(10, 'William', 'IT', 58000, '2022-12-05');
+
+SELECT *
+FROM Employees
+WHERE salary > 50000;
+
+SELECT department, COUNT(*) AS employee_count
+FROM Employees
+GROUP BY department;
+
+SELECT department, AVG(salary) AS average_salary
+FROM Employees
+GROUP BY department
+HAVING AVG(salary) > 50000;
+
+SELECT *
+FROM Employees
+WHERE salary = (
+    SELECT MAX(salary)
+    FROM Employees
+);
+
+SELECT employee_name, salary,
+       DENSE_RANK() OVER (
+           ORDER BY salary DESC
+       ) AS salary_rank
+FROM Employees;
+
+SELECT employee_name, department, salary
+FROM (
+    SELECT employee_name, department, salary,
+           ROW_NUMBER() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC
+           ) AS rn
+    FROM Employees
+) ranked
+WHERE rn = 1;
+
+SELECT e1.employee_name, e1.salary
+FROM Employees e1
+WHERE e1.salary > (
+    SELECT AVG(e2.salary)
+    FROM Employees e2
+    WHERE e2.department = e1.department
+);
+
+SELECT department, 
+       MAX(salary) AS highest_salary,
+       MIN(salary) AS lowest_salary
+FROM Employees
+GROUP BY department;
+
+SELECT employee_name, hire_date
+FROM Employees
+WHERE hire_date >= '2022-01-01'
+  AND hire_date < '2023-01-01';
+
+SELECT department, SUM(salary) AS total_salary
+FROM Employees
+GROUP BY department
+ORDER BY total_salary DESC;
